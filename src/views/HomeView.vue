@@ -1,57 +1,85 @@
 <script setup lang="ts">
-
 import { ref } from "vue";
 
 let id: number = 0;
 
-const tareas = ref([
-  {id: id++, fecha: undefined, text: '', completed: false }
-]);
-
+const tareas = ref<
+  { id: number; fecha?: number; text: string; completed: boolean }[]
+>([])
 
 const newTarea = ref('');
 
-
-function add () {
-      if (newTarea.value.trim() !== '') {
-        tareas.value.push({id: id++, fecha: Date.now(), text: newTarea.value, completed: false });
-        newTarea.value = '';  
-        }
-    };
-
-
-    function del(id: number) {
-  tareas.value = tareas.value.filter((tarea) => tarea.id !== id);
-
+function add() {
+  if (newTarea.value.trim() !== '') {
+    tareas.value.push({
+      id: id++,
+      fecha: Date.now(),
+      text: newTarea.value,
+      completed: false,
+    });
+    newTarea.value = '';
+  }
 }
 
+function del(id: number) {
+  tareas.value = tareas.value.filter((tarea) => tarea.id !== id);
+}
 </script>
 
 <template>
   <main>
-    <div class="container flex flex-col">
-      <label for="tarea" class="task flex"> Tarea </label>
-      <input
-        type="text"
-        class="add flex"
-        id="tarea"
-        placeholder="Agrega una tarea"
-        required
-        v-model="newTarea"
-      />
-      <button @click="add"> Añadir </button>
+    <div class="container mb-4 flex flex-col">
+      <label for="tarea" class="task mb-4 flex"> Ingresar tareas </label>
+      <div class="flex flex-row gap-2">
+        <input
+          type="text"
+          class="add flex w-auto"
+          id="tarea"
+          placeholder="Agrega una tarea"
+          required
+          v-model="newTarea"
+        />
+        <button
+          @click="add"
+          class="rounded border border-white bg-[#0EAE44] p-2 text-white"
+        >
+          Añadir
+        </button>
+      </div>
     </div>
 
-    <section class="lista" :v-if="tareas.length > 0">
-      <h1> Tareas por hacer </h1>
-      <ul>
-        <li v-for="tarea in tareas" :key="tarea.id">
-          <input type="checkbox" v-model="tarea.completed" >
-          <span :class="{ completed: tarea.completed }">{{ tarea.text }}</span> 
-          <button class="bg-red-700 text-white" @click="del(tarea.id)">Eliminar
-            
-          </button>
+    <section class="lista border border-white p-2" v-if="tareas.length > 0">
+      <h1 class="mb-4">Tareas por hacer</h1>
 
+      <div class="mb-2 grid grid-cols-3 p-2 font-bold">
+        <span>Estado</span>
+        <span>Tarea</span>
+        <span>Acciones</span>
+      </div>
+
+      <ul class="grid gap-2">
+        <li
+          v-for="tarea in tareas"
+          :key="tarea.id"
+          class="grid grid-cols-3 items-center bg-white p-2 text-black"
+        >
+          <div class="flex items-center">
+            <input type="checkbox" v-model="tarea.completed" />
+          </div>
+          <span :class="{ completed: tarea.completed }">{{ tarea.text }}</span>
+          <div class="flex gap-2">
+            <button
+              class="rounded border border-white bg-red-700 p-2 text-white"
+              @click="del(tarea.id)"
+            >
+              Eliminar
+            </button>
+            <button
+              class="rounded border border-white bg-blue-700 p-2 text-white"
+            >
+              Editar
+            </button>
+          </div>
         </li>
       </ul>
     </section>
@@ -60,10 +88,11 @@ function add () {
 
 
 <style scoped>
-
 .completed {
   text-decoration: line-through;
-  color: rgb(0, 0, 0);
 }
 
+input {
+  color: black;
+}
 </style>
