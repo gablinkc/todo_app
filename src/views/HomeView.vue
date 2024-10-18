@@ -4,7 +4,7 @@ import { ref } from "vue";
 let id: number = 0;
 
 const tareas = ref<
-  { id: number; fecha?: number; text: string; completed: boolean }[]
+  { id: number; fecha?: number; text: string; completed: boolean, editar: boolean }[]
 >([])
 
 const newTarea = ref('');
@@ -16,6 +16,7 @@ function add() {
       fecha: Date.now(),
       text: newTarea.value,
       completed: false,
+      editar: false,
     });
     newTarea.value = '';
   }
@@ -23,6 +24,10 @@ function add() {
 
 function del(id: number) {
   tareas.value = tareas.value.filter((tarea) => tarea.id !== id);
+}
+
+function edit(tarea) {
+  tarea.editar = !tarea.editar; 
 }
 </script>
 
@@ -53,7 +58,7 @@ function del(id: number) {
 
       <div class="mb-2 grid grid-cols-3 p-2 font-bold">
         <span>Estado</span>
-        <span>Tarea</span>
+        <span>Nombre de la tarea</span>
         <span>Acciones</span>
       </div>
 
@@ -66,19 +71,22 @@ function del(id: number) {
           <div class="flex items-center">
             <input type="checkbox" v-model="tarea.completed" />
           </div>
-          <span :class="{ completed: tarea.completed }">{{ tarea.text }}</span>
-          <div class="flex gap-2">
+          <input
+          v-if="tarea.editar"
+          type="text"
+          v-model="tarea.text"
+          class="border p-1"
+          @blur="tarea.editar = false"  
+        />
+        <span v-else :class="{ completed: tarea.completed }">{{ tarea.text }}</span>          
+        <div class="flex gap-2">
             <button
               class="rounded border border-white bg-red-700 p-2 text-white"
               @click="del(tarea.id)"
             >
               Eliminar
             </button>
-            <button
-              class="rounded border border-white bg-blue-700 p-2 text-white"
-            >
-              Editar
-            </button>
+            <button class="rounded border border-white bg-blue-700 p-2 text-white" @click="edit(tarea)"> {{ tarea.editar ? 'Guardar' : 'Editar' }} </button> 
           </div>
         </li>
       </ul>
