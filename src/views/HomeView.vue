@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 
 let id: number = 0;
 
@@ -19,16 +19,36 @@ function add() {
       editar: false,
     });
     newTarea.value = '';
+    saveTareas()
   }
 }
 
 function del(id: number) {
   tareas.value = tareas.value.filter((tarea) => tarea.id !== id);
+  saveTareas();
 }
+
 
 function edit(tarea) {
   tarea.editar = !tarea.editar; 
+  if (!tarea.editar) {
+    saveTareas()
 }
+}
+
+function saveTareas() {
+  localStorage.setItem('tareas', JSON.stringify(tareas.value));
+}
+
+function getTareas() {
+  const tareasJSON = localStorage.getItem('tareas');
+  return tareasJSON ? JSON.parse(tareasJSON) : [];
+}
+
+onMounted(() => {
+  tareas.value = getTareas()
+});
+
 </script>
 
 <template>
@@ -72,14 +92,14 @@ function edit(tarea) {
             <input type="checkbox" v-model="tarea.completed" />
           </div>
           <input
-          v-if="tarea.editar"
-          type="text"
-          v-model="tarea.text"
-          class="border p-1"
-          @blur="tarea.editar = false"  
-        />
-        <span v-else :class="{ completed: tarea.completed }">{{ tarea.text }}</span>          
-        <div class="flex gap-2">
+            v-if="tarea.editar"
+            type="text"
+            v-model="tarea.text"
+            class="border p-1"
+            @blur="tarea.editar = false"  
+          />
+          <span v-else :class="{ completed: tarea.completed }">{{ tarea.text }}</span>          
+          <div class="flex gap-2">
             <button
               class="rounded border border-white bg-red-700 p-2 text-white"
               @click="del(tarea.id)"
